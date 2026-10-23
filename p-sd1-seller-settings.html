@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>P-SD1 Seller: delivery settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>/* Optom.uz prototype base — colours and components taken from the Figma exports (Seller website, Buyer website, Super Admin Old) */
+:root{
+  --green:#00a028; --green-600:#008a22; --green-50:#e6f6ea; --green-100:#cdeed5;
+  --ink:#1b1c1f; --ink-2:#38383b; --muted:#6b7079; --muted-2:#8b9189; --line:#e7e9ec; --line-2:#d9dce1;
+  --bg:#f3f4f6; --card:#ffffff; --red:#d92d20; --red-50:#fdecec; --amber:#ca8504; --amber-50:#fef7c3;
+  --blue:#0c75ed; --blue-50:#e8f2fe; --violet:#7a5af8; --violet-50:#f1edff;
+  --radius:12px; --radius-sm:8px;
+  --font:"Onest",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--font);font-size:14px;line-height:1.45;color:var(--ink);background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--green);text-decoration:none}
+/* ---- prototype harness bar ---- */
+.pbar{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:8px 16px;background:#14161a;color:#e9ecef;font-size:12.5px}
+.pbar b{color:#fff;font-weight:600}
+.pbar .tag{background:#2a2e35;border-radius:6px;padding:2px 8px;color:#c6cbd2}
+.pbar select{background:#23272e;border:1px solid #3a3f47;border-radius:6px;color:#fff;padding:4px 8px;max-width:420px}
+.pbar .sp{flex:1}
+.pbar button{background:#23272e;border:1px solid #3a3f47;border-radius:6px;color:#fff;padding:4px 10px;cursor:pointer}
+.pbar button.on{background:var(--green);border-color:var(--green)}
+.notes{position:fixed;right:16px;bottom:16px;width:380px;max-height:60vh;overflow:auto;z-index:60;background:#fffef5;border:1px solid #eadf9f;border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.18);padding:14px 16px;font-size:12.5px;display:none}
+.notes.show{display:block}
+.notes h4{margin:0 0 6px;font-size:13px}
+.notes ul{margin:4px 0 0 16px;padding:0}
+.notes li{margin:3px 0}
+.notes .src{color:#6b6200;font-size:11.5px;margin-top:8px}
+/* ---- seller / admin shell ---- */
+.shell{display:grid;grid-template-columns:232px 1fr;min-height:calc(100vh - 40px)}
+.side{padding:18px 14px;display:flex;flex-direction:column;gap:2px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:26px;letter-spacing:-.5px;margin:0 6px 22px;color:var(--ink)}
+.logo svg{flex:none}
+.side .grp{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin:14px 10px 6px}
+.nav{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;color:var(--ink-2);cursor:default}
+.nav.on{background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.05);color:var(--ink);font-weight:500}
+.nav svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6;opacity:.8}
+.side .me{margin-top:auto;background:#fff;border-radius:12px;padding:10px;display:flex;gap:10px;align-items:center}
+.ava{width:34px;height:34px;border-radius:50%;background:#d7dbe0;display:grid;place-items:center;font-weight:600;color:#555;flex:none}
+.me small{display:block;color:var(--green);font-size:12px}
+.main{padding:16px 24px 40px 8px;min-width:0}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.iconbtn{width:34px;height:34px;border-radius:9px;background:#fff;border:1px solid var(--line);display:grid;place-items:center}
+.crumbs{color:var(--muted);font-size:13px;display:flex;gap:8px;align-items:center}
+.crumbs b{color:var(--ink);font-weight:500}
+.top .sp{flex:1}
+.lang{background:#fff;border:1px solid var(--line);border-radius:9px;padding:6px 12px;font-size:13px}
+.h1{font-size:26px;font-weight:600;margin:6px 0 14px;display:flex;align-items:center;gap:10px}
+/* ---- components ---- */
+.card{background:var(--card);border-radius:var(--radius);padding:20px 22px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.card+.card{margin-top:12px}
+.card h3{margin:0 0 4px;font-size:18px;font-weight:600}
+.sub{color:var(--muted);margin:0}
+.row{display:flex;gap:12px;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.sec{display:grid;grid-template-columns:240px 1fr;gap:24px;padding:20px 0;border-top:1px solid var(--line)}
+.sec>.lbl{font-weight:600}
+.sec>.lbl .sub{font-weight:400;font-size:13px;margin-top:4px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:13px;font-weight:500}
+.inp{border:1px solid var(--line-2);border-radius:10px;padding:10px 12px;background:#fff;outline:none;width:100%}
+.inp:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-50)}
+.inp.err{border-color:var(--red)}
+.inp[disabled]{background:#f6f7f9;color:var(--muted)}
+.err-t{color:var(--red);font-size:12.5px}
+.hint{color:var(--muted);font-size:12.5px}
+.btn{border:1px solid transparent;border-radius:10px;padding:10px 18px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.btn.pri{background:var(--green);color:#fff}
+.btn.pri:hover{background:var(--green-600)}
+.btn.pri[disabled]{background:#9fd8ad;cursor:not-allowed}
+.btn.out{background:#fff;border-color:var(--line-2);color:var(--ink)}
+.btn.soft{background:var(--green-50);color:var(--green)}
+.btn.dan{background:var(--red-50);color:var(--red)}
+.btn.danfill{background:var(--red);color:#fff}
+.btn.link{background:none;padding:6px 4px;color:var(--green)}
+.btn.sm{padding:6px 12px;font-size:13px;border-radius:8px}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:3px 9px;font-size:12.5px;font-weight:500;border:1px solid transparent}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.g{background:var(--green-50);color:var(--green);border-color:var(--green-100)}
+.pill.v{background:var(--violet-50);color:var(--violet);border-color:#ddd3ff}
+.pill.a{background:#fff6e0;color:#b54708;border-color:#fde7b0}
+.pill.r{background:var(--red-50);color:var(--red);border-color:#f9c9c4}
+.pill.n{background:#f1f2f4;color:var(--ink-2);border-color:var(--line)}
+.pill.b{background:var(--blue-50);color:var(--blue);border-color:#c9e0fd}
+.alert{border-radius:12px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;border-left:4px solid}
+.alert .ic{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;flex:none}
+.alert.w{background:var(--amber-50);border-color:var(--amber)} .alert.w .ic{background:var(--amber)}
+.alert.e{background:var(--red-50);border-color:var(--red)} .alert.e .ic{background:var(--red)}
+.alert.i{background:var(--blue-50);border-color:var(--blue)} .alert.i .ic{background:var(--blue)}
+.alert.s{background:var(--green-50);border-color:var(--green)} .alert.s .ic{background:var(--green)}
+.alert b{display:block;margin-bottom:2px}
+.toggle{position:relative;width:40px;height:22px;border-radius:12px;background:#d0d4da;border:none;cursor:pointer;flex:none;transition:.15s}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.15s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.toggle.on{background:var(--green)}
+.toggle.on::after{left:21px}
+.toggle[disabled]{opacity:.45;cursor:not-allowed}
+.chk{display:flex;gap:10px;align-items:flex-start;cursor:pointer;margin:8px 0}
+.chk input{width:18px;height:18px;accent-color:var(--green);margin-top:2px;flex:none}
+table.t{width:100%;border-collapse:collapse}
+table.t th{background:#f6f7f9;text-align:left;font-size:12.5px;font-weight:500;color:var(--muted);padding:10px 12px}
+table.t td{border-top:1px solid var(--line);padding:12px;vertical-align:middle}
+.kv{display:flex;gap:10px;padding:12px 0;border-top:1px solid var(--line);align-items:flex-start}
+.kv:first-of-type{border-top:none}
+.kv .k{color:var(--muted)}
+.kv svg{width:20px;height:20px;stroke:var(--muted);fill:none;stroke-width:1.6;flex:none;margin-top:1px}
+.modal-bg{position:fixed;inset:0;background:rgba(16,18,22,.45);display:grid;place-items:center;z-index:40;padding:20px}
+.modal{background:#fff;border-radius:16px;width:min(560px,100%);max-height:90vh;overflow:auto;padding:22px 24px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.modal h3{margin:0 0 6px;font-size:19px}
+.modal .acts{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1b1c1f;color:#fff;border-radius:10px;padding:10px 16px;z-index:70;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:13.5px}
+.digits{display:flex;gap:6px;align-items:flex-end}
+.digit{background:#eceef1;border-radius:10px;width:42px;height:52px;display:grid;place-items:center;font-size:24px;font-weight:600}
+.dsep{font-size:24px;font-weight:600;padding:0 4px 12px}
+.ycard{border:1.5px solid var(--line-2);border-radius:12px;padding:12px 14px;display:flex;gap:12px;align-items:center;cursor:pointer;background:#fff}
+.ycard.on{border-color:var(--green);background:var(--green-50)}
+.ycard .r{width:18px;height:18px;border-radius:50%;border:2px solid var(--line-2);flex:none}
+.ycard.on .r{border:5px solid var(--green)}
+.ycard[aria-disabled=true]{opacity:.5;cursor:not-allowed}
+.yglogo{font-weight:700;letter-spacing:-.3px}
+.yglogo i{font-style:italic;font-weight:800}
+.code-big{font-size:30px;letter-spacing:6px;font-weight:700;background:#f6f7f9;border-radius:10px;padding:8px 14px;display:inline-block}
+.steps{display:flex;justify-content:space-between;position:relative;margin:6px 0 4px}
+.steps::before{content:"";position:absolute;left:20px;right:20px;top:17px;height:2px;background:var(--line)}
+.step{position:relative;text-align:center;flex:1;color:var(--muted);font-size:13px}
+.step .dot{width:36px;height:36px;border-radius:10px;margin:0 auto 6px;background:#fff;border:1.5px solid var(--line-2);display:grid;place-items:center}
+.step.on{color:var(--green);font-weight:500}
+.step.on .dot{background:var(--green-50);border-color:var(--green)}
+.timeline .it{display:flex;gap:12px;padding:8px 0}
+.timeline .it .d{width:30px;height:30px;border-radius:50%;background:#f1f2f4;display:grid;place-items:center;flex:none;font-size:13px}
+.timeline .it small{display:block;color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mb0{margin-bottom:0}
+.spin{width:16px;height:16px;border:2px solid #c8ead1;border-top-color:var(--green);border-radius:50%;animation:sp 0.8s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ann{outline:2px dashed #f0b400;outline-offset:3px;border-radius:12px}
+
+:root{--blue:#0c75ed;--ab:#eef5f7}
+body{background:var(--ab)}
+.ash{display:grid;grid-template-columns:232px 1fr;min-height:calc(100vh - 44px)}
+.aside{background:#fff;padding:22px 16px}
+.aside .logo{font-size:27px;margin:0 0 28px 12px}
+.anav{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;font-weight:500;color:#1b1c1f;cursor:default;margin-bottom:4px}
+.anav svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6}
+.anav.on{background:var(--blue);color:#fff}
+.anav .ch{margin-left:auto;font-size:11px;opacity:.6}
+.asub{padding:8px 14px 8px 48px;border-radius:8px;color:#4b5563;font-size:14px;margin-bottom:2px;cursor:pointer}
+.asub.on{background:#e8f1fd;color:var(--blue);font-weight:500}
+.atop{display:flex;justify-content:flex-end;gap:12px;align-items:center;padding:16px 28px;background:#fff}
+.abox{border:1px solid var(--line);border-radius:10px;padding:8px 12px;display:flex;gap:8px;align-items:center;background:#fff}
+.abox select{border:none;font:inherit;background:transparent;font-weight:500;outline:none}
+.apanel{background:#fff;border-radius:14px;margin:24px 28px;padding:24px 26px}
+.apanel h1{font-size:24px;margin:0 0 18px;font-weight:600;display:flex;align-items:center;gap:12px}
+.apanel h1 .btn{font-size:14px}
+.back{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#555;cursor:pointer}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.tab{padding:10px 14px;cursor:pointer;color:var(--muted);font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--ink);border-bottom-color:var(--green)}
+.tab .cnt{background:#fde8e7;color:var(--red);border-radius:10px;padding:1px 7px;font-size:12px;margin-left:6px}
+.flt{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.flt .s{display:flex;flex:1;min-width:260px;border:1px solid var(--green);border-radius:10px;overflow:hidden}
+.flt .s input{flex:1;border:none;padding:9px 12px;outline:none;font:inherit}
+.flt .s button{background:var(--green);color:#fff;border:none;padding:0 18px;font-weight:600;font:inherit}
+.gsel{background:#f2f3f5;border:none;border-radius:10px;padding:9px 12px;font:inherit;min-width:190px}
+.chip{display:inline-block;border-radius:5px;padding:2px 8px;font-size:12px;color:#fff;font-weight:500;white-space:nowrap}
+.c-blue{background:#1d5fd1}.c-or{background:#f0a020}.c-pur{background:#7a29e0}.c-cy{background:#16a3d9}.c-gr{background:#1fa83c}.c-red{background:#d92d20}.c-gray{background:#5f6368}
+.go{width:30px;height:30px;border-radius:50%;background:#e6f6ea;color:var(--green);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-weight:700}
+.gin{background:#f2f3f5;border-radius:10px;padding:10px 12px;color:#4b5563;min-height:40px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.att{border:1px solid var(--line);border-radius:12px;margin-top:12px;overflow:hidden}
+.att .hd{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#fafbfc;border-bottom:1px solid var(--line)}
+.att .bd{padding:14px 16px}
+.prices{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
+.pr{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.pr small{display:block;color:var(--muted);font-size:12px}
+.pr b{font-size:17px;font-weight:600}
+.pr.hl{border-color:#f5c26b;background:#fffaf0}
+.dl{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 18px;font-size:13.5px}
+.dl div span{color:var(--muted)}
+.log{background:#0f1720;color:#d6e2ee;border-radius:10px;padding:12px;font:12px/1.5 ui-monospace,Menlo,monospace;max-height:340px;overflow:auto;white-space:pre-wrap}
+.log .m{color:#7dd3fc}.log .ok{color:#86efac}.log .bad{color:#fca5a5}
+.swrow{display:flex;align-items:flex-start;gap:16px;padding:16px 0;border-bottom:1px solid var(--line)}
+.swrow .tx{flex:1}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12.5px}
+.ro-note{font-size:12.5px;color:var(--muted);background:#f6f7f9;border-radius:8px;padding:6px 10px;display:inline-block}
+.radio-l{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px;cursor:pointer}
+.radio-l.on{border-color:var(--green);background:var(--green-50)}
+textarea.inp{min-height:76px;resize:vertical}
+
+.og{display:grid;grid-template-columns:1fr 330px;gap:12px;align-items:start}
+.prod{display:flex;align-items:center;gap:12px}
+.thumb{width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,#e8d8d8,#c9b3b3)}
+.price-line{background:#f6f7f9;border-radius:10px;padding:10px 12px;margin-top:12px;font-size:13.5px}
+.price-line b{font-weight:600}
+.preset{border:1.5px solid var(--line-2);border-radius:10px;padding:10px 12px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.preset.on{border-color:var(--green);background:var(--green-50)}
+.preset .r{width:16px;height:16px;border-radius:50%;border:2px solid var(--line-2);flex:none}
+.preset.on .r{border:5px solid var(--green)}
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.courier{display:flex;gap:14px;align-items:center;background:#f6f7f9;border-radius:12px;padding:12px 14px}
+.cnt{font-variant-numeric:tabular-nums;font-weight:600}
+
+.buyer{background:#fff;min-height:100vh}
+.strip{background:#1b1c1f;color:#e9ecef;font-size:13px;display:flex;justify-content:space-between;padding:10px 7%}
+.strip span+span{margin-left:28px}
+.bh{display:flex;align-items:center;gap:18px;padding:14px 7%;border-bottom:1px solid var(--line)}
+.bh .logo{margin:0;font-size:30px}
+.srch{flex:1;display:flex;border:2px solid var(--green);border-radius:10px;overflow:hidden}
+.srch input{flex:1;border:none;padding:9px 12px;outline:none}
+.srch button{background:var(--green);color:#fff;border:none;padding:0 20px;font-weight:600}
+.wrapb{padding:24px 7% 60px}
+.cg{display:grid;grid-template-columns:1fr 330px;gap:40px;align-items:start}
+.blk{margin-bottom:26px}
+.blk h2{font-size:19px;margin:0 0 4px;font-weight:600}
+.box{border:1px solid var(--line);border-radius:14px;padding:4px 16px}
+.opt{display:flex;gap:12px;align-items:center;padding:14px 0}
+.opt+.opt{border-top:1px solid var(--line)}
+.radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--line-2);flex:none}
+.radio.on{border:5px solid var(--green)}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.tile{border:1px solid var(--line-2);border-radius:12px;padding:14px;height:84px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;background:#fff}
+.tile.on{border-color:var(--green);background:var(--green-50)}
+.tile .lg{font-size:17px}
+.sumc{border-radius:16px;box-shadow:0 2px 12px rgba(16,24,40,.08);padding:20px 22px}
+.sumc .ln{display:flex;justify-content:space-between;margin:7px 0;color:var(--muted)}
+.sumc .ln b{color:var(--ink);font-weight:600}
+.sumc .tot{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:14px;margin-top:12px;font-size:18px;font-weight:600}
+.big{width:100%;justify-content:center;padding:15px;font-size:16px;border-radius:12px;margin-top:16px}
+.ygopts{display:grid;gap:8px;margin-top:12px}
+.valid{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);margin-top:10px}
+.demo{background:#fff3c4;border:1px dashed #d9b400;color:#6b5600;border-radius:6px;padding:2px 8px;font-size:11.5px;cursor:pointer}
+.adr{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.oc{display:grid;grid-template-columns:1fr 330px;gap:40px;align-items:start}
+.track{border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:14px}
+/* ---- seller-delivery additions ---- */
+.phonewrap{display:flex;justify-content:center;padding:24px 0 40px}
+.phone{width:390px;min-height:780px;border:11px solid #15171a;border-radius:44px;background:#f3f4f6;overflow:hidden;position:relative;box-shadow:0 20px 50px rgba(0,0,0,.18)}
+.phone .sb{height:34px;display:flex;justify-content:space-between;align-items:center;padding:0 22px;font-size:13px;font-weight:600;background:#fff}
+.phone .ah{background:#fff;padding:10px 16px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
+.phone .ah b{font-size:17px}
+.phone .pc{padding:12px}
+.phone .card{padding:14px 14px;border-radius:14px}
+.phone .btn{padding:11px 14px}
+.phone .tabbar{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 0 14px;font-size:11px;color:var(--muted)}
+.phone .tabbar .on{color:var(--green);font-weight:600}
+.phone .sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;padding:18px 16px 26px;box-shadow:0 -10px 30px rgba(0,0,0,.15);z-index:5}
+.cityrow{display:grid;grid-template-columns:1fr 200px 34px;gap:8px;align-items:center;margin-top:8px}
+.brblock{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:10px}
+.brblock.on{border-color:var(--green-100);background:#fbfefb}
+.x{width:34px;height:38px;border-radius:9px;border:1px solid var(--line-2);background:#fff;cursor:pointer;color:var(--muted)}
+.counter{float:right;color:var(--muted);font-size:12px}
+.sdcard{border:1.5px solid var(--line-2);border-radius:12px;padding:14px;display:flex;gap:12px;align-items:flex-start;cursor:pointer;background:#fff;margin-top:12px}
+.sdcard.on{border-color:var(--green);background:var(--green-50)}
+.sdcard.off{background:#f6f7f9;cursor:not-allowed;color:var(--muted)}
+.sdcard .r{width:18px;height:18px;border-radius:50%;border:2px solid var(--line-2);flex:none;margin-top:2px}
+.sdcard.on .r{border:5px solid var(--green)}
+.sdcard .why{color:var(--red);font-size:13px;margin-top:4px}
+.info{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#eceef1;color:var(--ink-2);font-size:11px;font-weight:700;cursor:pointer;margin-left:6px;vertical-align:middle}
+.tip{background:#1b1c1f;color:#fff;border-radius:10px;padding:10px 12px;font-size:12.5px;margin-top:8px;max-width:420px}
+.codebox{display:flex;gap:8px;justify-content:center;margin:14px 0}
+.codebox input{width:52px;height:60px;text-align:center;font-size:26px;font-weight:600;border:1.5px solid var(--line-2);border-radius:12px;outline:none}
+.codebox input:focus{border-color:var(--green)}
+.overdue{color:var(--red);font-weight:600}
+.dflt{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fff}
+.dflt h4{margin:14px 0 8px;font-size:15px}
+.dflt h4:first-child{margin-top:0}
+.fopt{display:flex;align-items:center;gap:10px;padding:6px 0;cursor:pointer}
+.fopt .radio{width:18px;height:18px}
+.chipf{display:inline-block;border:1px solid var(--line);border-radius:18px;padding:5px 12px;margin:0 6px 6px 0;font-size:13px;background:#f6f7f9}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.pcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px}
+.pcard .img{height:120px;border-radius:10px;background:linear-gradient(135deg,#eef0ec,#d9dfd6);margin-bottom:8px}
+.pcard .pr{font-weight:700;font-size:16px}
+.ptag{display:inline-block;font-size:11.5px;border-radius:6px;padding:2px 7px;background:#f1f2f4;color:var(--ink-2);margin-top:6px}
+.empty{text-align:center;color:var(--muted);padding:50px 0}
+.addrpick{position:fixed;inset:0;background:rgba(16,18,22,.45);display:grid;place-items:center;z-index:45}
+.reasons label{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px;cursor:pointer}
+.reasons label.on{border-color:var(--green);background:var(--green-50)}
+.notif{background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:12px 14px;display:flex;gap:10px;max-width:360px}
+.notif .ic2{width:36px;height:36px;border-radius:10px;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:700;flex:none}
+</style></head><body>
+<div id="app"></div><p style="text-align:center;color:#8b9189;font-size:11.5px;margin:18px 0 28px">Optom.uz · clickable prototype for the seller-delivery user stories (epic US-BF-6.4) · requirements: Seller delivery PRD v1.2 · example data only. Where a prototype differs from the acceptance criteria in Confluence, the acceptance criteria win.</p>
+<script>// Prototype harness: scenario picker, notes panel, toasts, icons, seller shell
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const som = n => Math.round(n).toLocaleString("ru-RU").replace(/,/g, " ") + " сум";
+const ICON = {
+  chart: '<svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+  box: '<svg viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8"/></svg>',
+  list: '<svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>',
+  chat: '<svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg>',
+  users: '<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5M16 11a3 3 0 1 0 0-6M21 20c0-2-1.5-4-4-4.6"/></svg>',
+  store: '<svg viewBox="0 0 24 24"><path d="M3 9l2-5h14l2 5M4 9v11h16V9M3 9h18M9 20v-6h6v6"/></svg>',
+  gear: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>',
+  spark: '<svg viewBox="0 0 24 24"><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>',
+  truck: '<svg viewBox="0 0 24 24"><path d="M2 6h12v10H2zM14 10h4l3 3v3h-7"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>',
+  pin: '<svg viewBox="0 0 24 24"><path d="M12 22s7-7 7-12a7 7 0 1 0-14 0c0 5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+  phone: '<svg viewBox="0 0 24 24"><path d="M5 3h4l2 5-3 2a12 12 0 0 0 6 6l2-3 5 2v4a2 2 0 0 1-2 2A18 18 0 0 1 3 5a2 2 0 0 1 2-2z"/></svg>',
+  cal: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  card: '<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>',
+  msg: '<svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg>',
+  user: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>',
+  bell: '<svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"/></svg>',
+  globe: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>',
+  side: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>',
+};
+const LOGO = '<span class="logo"><svg width="34" height="34" viewBox="0 0 34 34"><rect x="12" y="2" width="10" height="30" rx="3" fill="#00a028"/><rect x="2" y="8" width="30" height="5" rx="2.5" fill="#00a028"/><rect x="2" y="15" width="30" height="5" rx="2.5" fill="#00a028"/><rect x="2" y="22" width="30" height="5" rx="2.5" fill="#00a028"/><rect x="15" y="9" width="4" height="17" rx="1" fill="#fff"/></svg>optom</span>';
+const YG = '<span class="yglogo">Yandex <i>Go</i></span>';
+const FARGO = '<span style="font-weight:800;font-style:italic;letter-spacing:-.5px"><span style="color:#e3262e">◤</span> FARGO</span>';
+
+function sellerShell(active, crumbs, content) {
+  const nav = (k, ic, t) => `<div class="nav ${active === k ? "on" : ""}">${ICON[ic]}${t}</div>`;
+  return `<div class="shell"><aside class="side">${LOGO}
+    <div class="grp">Основное</div>${nav("an", "chart", "Аналитика")}${nav("pr", "box", "Товары")}${nav("or", "list", "Заказы")}${nav("ch", "chat", "Чаты")}
+    <div class="grp">Организация</div>${nav("em", "users", "Сотрудники")}${nav("br", "store", "Филиалы")}
+    <div class="grp">Система</div>${nav("se", "gear", "Настройки")}${nav("ta", "spark", "Тарифы")}
+    <div class="me"><span class="ava">НА</span><div><b style="font-weight:600">Николаев А. Д.</b><small>● Подтвержден</small></div></div></aside>
+    <main class="main"><div class="top"><span class="iconbtn">${ICON.side.replace("<svg", '<svg width="18" height="18" fill="none" stroke="#38383b"')}</span><div class="crumbs">${crumbs}</div><span class="sp"></span><span class="iconbtn">${ICON.bell.replace("<svg", '<svg width="18" height="18" fill="none" stroke="#38383b"')}</span><span class="lang">Русский ▾</span></div>${content}</main></div>`;
+}
+
+// ---- harness ----
+const H = { scen: [], cur: null, notesOn: false };
+function harness(meta, scenarios) {
+  H.scen = scenarios;
+  const bar = document.createElement("div"); bar.className = "pbar";
+  bar.innerHTML = `<b>${esc(meta.title)}</b><span class="tag">${esc(meta.stories)}</span><span class="tag">v${meta.version}</span>
+    <span>Scenario:</span><select id="scen">${scenarios.map((s, i) => `<option value="${i}">${i + 1}. ${esc(s.label)}</option>`).join("")}</select>
+    <button id="reset" title="Reset the current scenario">↺ Reset</button><span class="sp"></span>
+    <span style="color:#9aa1ab">Prototype · RU UI · notes in English</span>
+    <button id="ntoggle">Notes for this state</button>`;
+  document.body.prepend(bar);
+  const notes = document.createElement("div"); notes.className = "notes"; notes.id = "notes"; document.body.append(notes);
+  $("#scen").onchange = e => go(+e.target.value);
+  $("#reset").onclick = () => go(+$("#scen").value);
+  $("#ntoggle").onclick = () => { H.notesOn = !H.notesOn; notes.classList.toggle("show", H.notesOn); $("#ntoggle").classList.toggle("on", H.notesOn); };
+  const q = new URLSearchParams(location.hash.slice(1)), qs = new URLSearchParams(location.search); go(+(q.get("s") || qs.get("s") || 0));
+}
+function go(i) {
+  const s = H.scen[i]; if (!s) return; H.cur = s; $("#scen").value = i; history.replaceState(null, "", "#s=" + i);
+  s.apply(); setNotes(s.notes, s.src);
+}
+function setNotes(list, src) {
+  $("#notes").innerHTML = `<h4>What this state shows</h4><ul>${(list || []).map(n => `<li>${n}</li>`).join("")}</ul>${src ? `<div class="src">${src}</div>` : ""}`;
+}
+let toastT;
+function toast(t) { let el = $(".toast"); if (!el) { el = document.createElement("div"); el.className = "toast"; document.body.append(el); } el.textContent = t; el.style.display = "block"; clearTimeout(toastT); toastT = setTimeout(() => el.style.display = "none", 3200); }
+function modal(html) { closeModal(); const bg = document.createElement("div"); bg.className = "modal-bg"; bg.id = "mbg"; bg.innerHTML = `<div class="modal">${html}</div>`; document.body.append(bg); return bg; }
+function closeModal() { const m = $("#mbg"); if (m) m.remove(); }
+
+// When embedded in a narrow frame (e.g. Confluence iFrame), scale the desktop layout down to fit
+(function fitFrame() {
+  if (window === window.top) return;
+  const apply = () => { const w = document.documentElement.clientWidth; document.documentElement.style.zoom = w < 1280 ? (w / 1280).toFixed(3) : ""; };
+  apply(); window.addEventListener("resize", apply);
+})();
+
+
+// P-SD1 Seller: seller-delivery settings and product flag
+const TERMS = [["D0_1", "Сегодня или завтра"], ["D2_3", "2–3 дня"], ["D4_7", "4–7 дней"], ["D8_14", "8–14 дней"], ["D15_30", "15–30 дней"]];
+const CITIES = ["Ташкент", "Чирчик", "Ангрен", "Алмалык", "Самарканд", "Бухара", "Андижан", "Наманган", "Фергана", "Карши", "Навои", "Нукус"];
+const PRODUCTS = [{ n: "Холодильник Artel HD 455", p: 6300000, m: 1, f: false }, { n: "Стиральная машина LG F2J3", p: 5200000, m: 1, f: false }, { n: "Стулья офисные (комплект)", p: 450000, m: 2, f: false },
+  { n: "Бумажные стаканы 250 мл", p: 900, m: 500, f: false }, { n: "Кружки керамические", p: 35000, m: 12, f: true }, { n: "Витринный холодильник", p: 4100000, m: 1, f: true }];
+const BR0 = [{ id: 1, name: "Филиал Чиланзар", city: "Ташкент", ticked: false, cities: [] }, { id: 2, name: "Склад Сергели", city: "Ташкент", ticked: false, cities: [] },
+  { id: 3, name: "Филиал Самарканд", city: "Самарканд", ticked: false, cities: [] }, { id: 4, name: "Новый склад (без адреса)", city: "", ticked: false, cities: [] }];
+let S = {};
+function reset(o) {
+  closeModal();
+  S = Object.assign({ view: "settings", on: false, price: "", moq: "", note: "", branches: JSON.parse(JSON.stringify(BR0)), saved: null, activeOrders: 0, adminOff: "", failSave: false, picker: null,
+    flag: false, sdOn: true, negotiable: false, prodPrice: "6 300 000", dirty: false }, o || {});
+  render();
+}
+const num = v => +String(v).replace(/\D/g, "") || 0;
+function errors() {
+  const e = {};
+  if (!S.on) return e;
+  if (S.price !== "" && (num(S.price) < 1000 || num(S.price) > 1e9)) e.price = "Введите сумму от 1 000 до 1 000 000 000 сум";
+  if (S.moq !== "" && (num(S.moq) < 1 || num(S.moq) > 100000)) e.moq = "Введите количество от 1 до 100 000";
+  const t = S.branches.filter(b => b.ticked);
+  if (!t.length) e.br = "Выберите хотя бы один филиал, из которого вы доставляете";
+  t.forEach(b => { if (!b.cities.length) e["c" + b.id] = "Добавьте хотя бы один город, куда доставляет филиал"; else if (b.cities.some(c => !c.term)) e["t" + b.id] = "Выберите срок доставки для каждого города"; });
+  return e;
+}
+const qualify = () => PRODUCTS.filter(p => p.f || (S.price !== "" && p.p >= num(S.price)) || (S.moq !== "" && p.m >= num(S.moq))).length;
+function cityRows(b, ro) {
+  return b.cities.map((c, i) => `<div class="cityrow"><div class="inp" style="background:#f6f7f9">${esc(c.city)}</div>
+    <select class="inp" data-term="${b.id}:${i}" ${ro ? "disabled" : ""}><option value="">Срок доставки…</option>${TERMS.map(t => `<option value="${t[0]}" ${c.term === t[0] ? "selected" : ""}>${t[1]}</option>`).join("")}</select>
+    <button class="x" data-rm="${b.id}:${i}" ${ro ? "disabled" : ""} title="Удалить">✕</button></div>`).join("");
+}
+function branchBlock(b, e, ro) {
+  if (!b.city) return `<div class="brblock"><label class="chk" style="margin:0;opacity:.55"><input type="checkbox" disabled><span><b>${esc(b.name)}</b><div class="hint">Укажите город филиала, чтобы доставлять из него · <a href="#" onclick="return false">Изменить филиал</a></div></span></label></div>`;
+  return `<div class="brblock ${b.ticked ? "on" : ""}"><label class="chk" style="margin:0"><input type="checkbox" data-br="${b.id}" ${b.ticked ? "checked" : ""} ${ro ? "disabled" : ""}><span><b>${esc(b.name)}</b> <span class="muted">· ${esc(b.city)}</span></span></label>
+    ${b.ticked ? `<div style="margin-left:28px"><div class="small muted mt8">Города доставки и срок</div>${cityRows(b, ro)}
+      ${S.picker === b.id ? `<div class="row mt8"><select class="inp" id="cpick" style="max-width:260px"><option value="">Найдите город…</option>${CITIES.map(c => `<option>${c}</option>`).join("")}</select><span class="err-t" id="dup"></span></div>` : ""}
+      ${!ro ? `<button class="btn link sm" data-add="${b.id}">＋ Добавить город</button>` : ""}
+      ${e["c" + b.id] ? `<div class="err-t">${e["c" + b.id]}</div>` : ""}${e["t" + b.id] ? `<div class="err-t">${e["t" + b.id]}</div>` : ""}</div>` : ""}</div>`;
+}
+function sdBlock(mobile) {
+  const e = errors(), ro = !!S.adminOff, valid = !Object.keys(e).length;
+  const head = `<div class="row" style="justify-content:space-between;align-items:flex-start"><div><h3 style="margin:0">🚚 Доставка продавцом</h3><p class="sub small">Своим транспортом, всегда бесплатно для покупателя</p></div><button class="toggle ${S.on ? "on" : ""}" id="sw" ${ro ? "disabled" : ""}></button></div>`;
+  if (S.adminOff) return `<div class="card">${head}<div class="alert e mt12"><span class="ic">!</span><div><b>Доставка продавцом отключена администратором: ${esc(S.adminOff)}</b>Обратитесь в поддержку, если не согласны.</div></div></div>`;
+  if (!S.on) return `<div class="card">${head}</div>`;
+  const warn = S.price === "" && S.moq === "" && !PRODUCTS.some(p => p.f) ? `<div class="alert w mt12"><span class="ic">!</span><div>Сейчас ни один товар не подходит для бесплатной доставки. Укажите порог или отметьте товары.</div></div>` : "";
+  return `<div class="card">${head}
+    <div class="${mobile ? "" : "grid2"} mt16"><div class="field"><label>Бесплатно, если цена товара от</label><input class="inp ${e.price ? "err" : ""}" id="price" placeholder="например, 5 000 000" value="${esc(S.price)}"><span class="hint">сум, цена со скидкой продавца</span>${e.price ? `<span class="err-t">${e.price}</span>` : ""}</div>
+      <div class="field"><label>Бесплатно, если минимальный заказ от</label><input class="inp ${e.moq ? "err" : ""}" id="moq" placeholder="например, 100" value="${esc(S.moq)}"><span class="hint">шт. Минимальный заказ товара указывается в карточке товара</span>${e.moq ? `<span class="err-t">${e.moq}</span>` : ""}</div></div>
+    <div class="field"><label>Условия для покупателя <span class="counter">${S.note.length}/300</span></label><textarea class="inp" id="note" maxlength="300" placeholder="Например: доставка до подъезда, разгрузка за счёт покупателя">${esc(S.note)}</textarea></div>
+    <div class="pill g">Сейчас подходят товаров: ${qualify()}</div>${warn}
+    <h4 style="margin:18px 0 0">Филиалы, из которых вы доставляете</h4>${S.branches.map(b => branchBlock(b, e, ro)).join("")}
+    ${e.br ? `<div class="err-t mt8">${e.br}</div>` : ""}
+    <div class="row mt16"><button class="btn pri" id="save" ${valid ? "" : "disabled"}>Сохранить</button>${S.saved ? `<span class="hint">Сохранено ${S.saved}</span>` : ""}</div></div>`;
+}
+function settingsPage() {
+  const other = `<div class="card"><h3>Способы доставки</h3><p class="sub">Выберите, как покупатели могут получить ваши заказы</p>
+    <div class="kv mt12"><div style="flex:1">${FARGO} <span class="muted small">· подключено</span></div><span class="pill g">Включено</span></div>
+    <div class="kv"><div style="flex:1">${YG} <span class="muted small">· отдельный блок</span></div><span class="pill n">Настроить</span></div>
+    <div class="kv"><div style="flex:1"><b>Самовывоз</b> <span class="muted small">· позже</span></div><span class="pill n">Скоро</span></div></div>`;
+  return sellerShell("se", `Настройки <span>›</span> <b>Доставка</b>`, `<div class="h1">Доставка</div>${other}<div class="mt12">${sdBlock(false)}</div>`);
+}
+function productPage() {
+  const dis = S.negotiable;
+  return sellerShell("pr", `Товары <span>›</span> <b>Редактирование</b>`, `<div class="h1">Холодильник Artel HD 455</div>
+    <div class="card"><div class="grid2"><div class="field"><label>Цена, сум</label><input class="inp" value="${esc(S.prodPrice)}"></div><div class="field"><label>Минимальный заказ, шт.</label><input class="inp" value="1"></div></div>
+      <label class="chk"><input type="checkbox" id="neg" ${S.negotiable ? "checked" : ""}><span>Договорная цена</span></label>
+      <div class="brblock ${S.flag && !dis ? "on" : ""}"><label class="chk" style="margin:0"><input type="checkbox" id="flag" ${S.flag && !dis ? "checked" : ""} ${dis ? "disabled" : ""}><span><b>Бесплатная доставка продавцом</b>
+        <div class="hint">${dis ? "Товары с договорной ценой пока не могут доставляться продавцом бесплатно." : "Товар доставляется бесплатно, если адрес покупателя в зоне вашей доставки."}</div>
+        ${!S.sdOn && !dis ? `<div class="hint" style="color:#b54708">Доставка продавцом выключена в настройках. <a href="#" onclick="return false">Открыть настройки</a></div>` : ""}</span></label></div>
+      <div class="row mt16"><button class="btn out">Отмена</button><button class="btn pri" id="psave">Сохранить</button></div></div>`);
+}
+function mobilePage() {
+  return `<div class="phonewrap"><div class="phone"><div class="sb"><span>9:41</span><span>▮▮▮ ◔</span></div><div class="ah"><span>‹</span><b>Доставка</b></div><div class="pc">${sdBlock(true)}</div>
+    <div class="tabbar"><span>Главная</span><span>Заказы</span><span>Товары</span><span>Чаты</span><span class="on">Ещё</span></div></div></div>`;
+}
+function render() { $("#app").innerHTML = S.view === "product" ? productPage() : S.view === "mobile" ? mobilePage() : settingsPage(); bind(); }
+function bind() {
+  const sw = $("#sw"); if (sw) sw.onclick = () => {
+    if (S.on && S.activeOrders) return offDialog();
+    S.on = !S.on; render(); };
+  const inp = (id, k) => { const el = $("#" + id); if (el) el.oninput = e => { S[k] = e.target.value; const p = el.selectionStart; render(); const n = $("#" + id); n.focus(); try { n.setSelectionRange(p, p); } catch (_) {} }; };
+  inp("price", "price"); inp("moq", "moq"); inp("note", "note");
+  document.querySelectorAll("[data-br]").forEach(c => c.onchange = () => { const b = S.branches.find(x => x.id == c.dataset.br); b.ticked = c.checked; if (b.ticked && !b.cities.length) b.cities.push({ city: b.city, term: "" }); render(); });
+  document.querySelectorAll("[data-term]").forEach(s => s.onchange = () => { const [b, i] = s.dataset.term.split(":"); S.branches.find(x => x.id == b).cities[i].term = s.value; render(); });
+  document.querySelectorAll("[data-rm]").forEach(s => s.onclick = () => { const [b, i] = s.dataset.rm.split(":"); S.branches.find(x => x.id == b).cities.splice(i, 1); render(); });
+  document.querySelectorAll("[data-add]").forEach(s => s.onclick = () => { S.picker = +s.dataset.add; render(); });
+  const cp = $("#cpick"); if (cp) cp.onchange = () => { const b = S.branches.find(x => x.id == S.picker); if (b.cities.some(c => c.city === cp.value)) { $("#dup").textContent = "Этот город уже добавлен"; return; } b.cities.push({ city: cp.value, term: "" }); S.picker = null; render(); };
+  const sv = $("#save"); if (sv) sv.onclick = () => { if (S.failSave) return toast("Не удалось сохранить настройки. Попробуйте ещё раз."); S.saved = "сегодня в 03:42"; render(); toast("Настройки сохранены"); };
+  const fl = $("#flag"); if (fl) fl.onchange = () => { S.flag = fl.checked; };
+  const ng = $("#neg"); if (ng) ng.onchange = () => { S.negotiable = ng.checked; render(); };
+  const ps = $("#psave"); if (ps) ps.onclick = () => toast(S.flag && !S.negotiable ? "Товар сохранён. Повторная модерация не нужна: изменилась только доставка" : "Товар сохранён");
+}
+function offDialog() {
+  const m = modal(`<h3>Выключить доставку продавцом?</h3><p>У вас ${S.activeOrders} активных заказов с доставкой продавцом. Их всё равно нужно доставить.</p><div class="acts"><button class="btn out" id="keep">Оставить включённой</button><button class="btn danfill" id="off">Выключить</button></div>`);
+  $("#keep", m).onclick = closeModal; $("#off", m).onclick = () => { closeModal(); S.on = false; render(); toast("Настройки сохранены"); };
+}
+const filled = () => { const b = JSON.parse(JSON.stringify(BR0)); b[0].ticked = true; b[0].cities = [{ city: "Ташкент", term: "D0_1" }, { city: "Чирчик", term: "D2_3" }]; b[2].ticked = true; b[2].cities = [{ city: "Самарканд", term: "D0_1" }, { city: "Бухара", term: "D4_7" }]; return b; };
+harness({ title: "P-SD1 Seller: seller delivery settings and product flag", stories: "US-SF-5.5-01 · US-SF-5.4-01", version: "1.0" }, [
+  { label: "Settings, seller delivery off", apply: () => reset(), notes: ["Default state: the block is off and shows nothing else (US-SF-5.5-01 AC1).", "Click the switch to turn it on (AC2). Fargo, Yandex Go and pickup are only placeholders here."], src: "Seller delivery PRD 5.1 · not designed (DR-SD5)" },
+  { label: "Settings filled in, two branches", apply: () => reset({ on: true, price: "5 000 000", moq: "100", note: "Доставка до подъезда, разгрузка за счёт покупателя.", branches: filled() }), notes: ["Two branches deliver; each city has its own delivery time from five fixed ranges (AC3, AC4).", "Try \"+ Добавить город\" and pick Ташкент again to see \"Этот город уже добавлен\" (AC5).", "The live count \"Сейчас подходят товаров\" changes with the thresholds (AC10, nice to have).", "\"Новый склад\" has no city, so it cannot be ticked (AC9)."], src: "PRD 4.3, 4.6, 5.1" },
+  { label: "Validation errors", apply: () => { const b = JSON.parse(JSON.stringify(BR0)); b[0].ticked = true; b[0].cities = [{ city: "Ташкент", term: "" }]; b[1].ticked = true; reset({ on: true, price: "500", branches: b }); }, notes: ["\"Сохранить\" stays disabled while any error is shown (AC6).", "Errors: price out of range, a branch without a city, a city without a delivery time."], src: "PRD 5.1 field table, M-SD12, M-SD13, M-SD26" },
+  { label: "Turning off with active orders", apply: () => reset({ on: true, price: "5 000 000", branches: filled(), activeOrders: 3, saved: "вчера в 18:10" }), notes: ["Click the switch: the dialog warns that 3 active orders must still be delivered (AC11).", "\"Выключить\" turns the method off for new checkouts only."], src: "PRD SD-S9, M-SD16" },
+  { label: "Switched off by the admin", apply: () => reset({ on: false, adminOff: "покупателям предлагали платную доставку" }), notes: ["The switch is locked and the admin's reason is shown (AC13). The seller cannot turn it back on."], src: "PRD SD-S10, M-SD22; US-AF-2.3-01" },
+  { label: "Product form with the flag", apply: () => reset({ view: "product", flag: true }), notes: ["Checkbox \"Бесплатная доставка продавцом\" with its hint (US-SF-5.4-01 AC1).", "Saving only this field does not send the product back to moderation (AC4).", "Tick \"Договорная цена\" to see the checkbox disabled (AC5, proposed)."], src: "PRD 5.2 · not designed (DR-SD7)" },
+  { label: "Flag while seller delivery is off", apply: () => reset({ view: "product", sdOn: false }), notes: ["The flag still saves; the hint says seller delivery is off and links to the settings (AC3)."], src: "PRD SD-S14, M-SD20" },
+  { label: "Seller app: settings", apply: () => reset({ view: "mobile", on: true, price: "5 000 000", branches: filled() }), notes: ["The seller app has the same block, rules and messages (US-SF-5.5-01 AC15)."], src: "PRD NFR-SD7" },
+]);
+
+</script></body></html>
