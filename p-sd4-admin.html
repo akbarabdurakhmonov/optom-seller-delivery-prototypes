@@ -284,7 +284,7 @@ textarea.inp{min-height:76px;resize:vertical}
 .notif{background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:12px 14px;display:flex;gap:10px;max-width:360px}
 .notif .ic2{width:36px;height:36px;border-radius:10px;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:700;flex:none}
 </style></head><body>
-<div id="app"></div><p style="text-align:center;color:#8b9189;font-size:11.5px;margin:18px 0 28px">Optom.uz · clickable prototype for the seller-delivery user stories (epic US-BF-6.4) · requirements: Seller delivery PRD v1.2 · example data only. Where a prototype differs from the acceptance criteria in Confluence, the acceptance criteria win.</p>
+<div id="app"></div><p style="text-align:center;color:#8b9189;font-size:11.5px;margin:18px 0 28px">Optom.uz · clickable prototype for the seller-delivery user stories (epic US-BF-6.4) · requirements: Seller delivery PRD · example data only. Where a prototype differs from the acceptance criteria in Confluence, the acceptance criteria win.</p>
 <script>// Prototype harness: scenario picker, notes panel, toasts, icons, seller shell
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -432,11 +432,11 @@ function bind() {
   on("off", () => commentDialog("Отключить доставку продавцом для продавца?", "Отключить", v => { S.off = true; S.offReason = v; render(); toast("Отключено. Продавец получил уведомление"); }));
   on("on", () => { S.off = false; render(); toast("Доставка продавцом снова включена"); });
 }
-harness({ title: "P-SD4 Admin: seller delivery", stories: "US-AF-2.3-01 · US-AF-2.3-02 · US-BF-6.4-04", version: "1.0" }, [
+harness({ title: "P-SD4 Admin: seller delivery", stories: "US-AF-2.3-01 · US-AF-2.3-02 · US-BF-6.4-04", version: "1.1" }, [
   { label: "Orders: filter and seller-delivery block", apply: () => reset({ view: "orders" }), notes: ["The order filter has \"Доставка продавцом\" (US-AF-2.3-01 AC1). Open an order to see the seller-delivery block: city, delivery time, deadline, basis, handover, attempts and history (AC2).", "The delivery code is never shown to the admin."], src: "Seller delivery PRD SD-A1, SD-A2 · not designed (DR-SD9)" },
-  { label: "Seller: settings, log and switch-off", apply: () => reset({ view: "seller" }), notes: ["Read-only settings and the change log (AC3). \"Отключить доставку продавцом\" needs a reason of 10–300 characters (AC4, AC5, ⚑ OQ-SD19)."], src: "PRD SD-A3, SD-A4" },
+  { label: "Seller: settings, log and switch-off", apply: () => reset({ view: "seller" }), notes: ["Read-only settings and the change log (AC3). \"Отключить доставку продавцом\" needs a reason of 10–300 characters (AC4, AC5, decided OQ-SD19)."], src: "PRD SD-A3, SD-A4" },
   { label: "Problem list", apply: () => reset(), notes: ["One row per order with all open reasons, oldest first, filters by reason and seller (US-AF-2.3-02 AC1).", "\"Просрочен\" rows come from the daily job (US-BF-6.4-04 AC4). Open a row to act on it."], src: "PRD SD-A5" },
-  { label: "Order on hold: admin actions", apply: () => reset({ view: "order", open: 0 }), notes: ["The buyer refused, so only the admin can move the order on: cancel (→ 46), allow a new attempt, or mark the reason resolved (AC3, AC4, AC6; the last two are ⚑)."], src: "PRD SD-A6, 7" },
+  { label: "Order on hold: admin actions", apply: () => reset({ view: "order", open: 0 }), notes: ["The buyer refused, so only the admin can move the order on: cancel (→ 46), allow a new attempt, or mark the reason resolved (AC3, AC4, AC6; the new attempt is decided, OQ-SD9; \"Mark resolved\" is still ⚑)."], src: "PRD SD-A6, 7" },
   { label: "Empty list", apply: () => reset({ rows: [] }), notes: ["Empty state text (US-AF-2.3-02 AC2)."], src: "M-SD57" },
 ]);
 
