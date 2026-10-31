@@ -1,14 +1,15 @@
 // P-SD1 Seller: seller-delivery settings and product flag
 const TERMS = [["D0_1", "Сегодня или завтра"], ["D2_3", "2–3 дня"], ["D4_7", "4–7 дней"], ["D8_14", "8–14 дней"], ["D15_30", "15–30 дней"]];
 const CITIES = ["Ташкент", "Чирчик", "Ангрен", "Алмалык", "Самарканд", "Бухара", "Андижан", "Наманган", "Фергана", "Карши", "Навои", "Нукус"];
-const PRODUCTS = [{ n: "Холодильник Artel HD 455", p: 6300000, m: 1, f: false }, { n: "Стиральная машина LG F2J3", p: 5200000, m: 1, f: false }, { n: "Стулья офисные (комплект)", p: 450000, m: 2, f: false },
-  { n: "Бумажные стаканы 250 мл", p: 900, m: 500, f: false }, { n: "Кружки керамические", p: 35000, m: 12, f: true }, { n: "Витринный холодильник", p: 4100000, m: 1, f: true }];
+// Demo catalogue of the seller. neg = negotiable price: never counts for seller delivery.
+const PRODUCTS = [{ n: "Холодильник Artel HD 455", p: 6300000, f: false }, { n: "Стиральная машина LG F2J3", p: 5200000, f: false }, { n: "Стулья офисные (комплект)", p: 450000, f: false },
+  { n: "Бумажные стаканы 250 мл", p: 900, f: false }, { n: "Кружки керамические", p: 35000, f: true }, { n: "Витринный холодильник", p: 4100000, f: true }, { n: "Холодильная камера на заказ", p: 0, f: false, neg: true }];
 const BR0 = [{ id: 1, name: "Филиал Чиланзар", city: "Ташкент", ticked: false, cities: [] }, { id: 2, name: "Склад Сергели", city: "Ташкент", ticked: false, cities: [] },
   { id: 3, name: "Филиал Самарканд", city: "Самарканд", ticked: false, cities: [] }, { id: 4, name: "Новый склад (без адреса)", city: "", ticked: false, cities: [] }];
 let S = {};
 function reset(o) {
   closeModal();
-  S = Object.assign({ view: "settings", on: false, price: "", moq: "", note: "", branches: JSON.parse(JSON.stringify(BR0)), saved: null, activeOrders: 0, adminOff: "", failSave: false, picker: null,
+  S = Object.assign({ view: "settings", on: false, price: "", note: "", branches: JSON.parse(JSON.stringify(BR0)), saved: null, activeOrders: 0, adminOff: "", failSave: false, picker: null,
     flag: false, sdOn: true, negotiable: false, prodPrice: "6 300 000", dirty: false }, o || {});
   render();
 }
@@ -17,13 +18,14 @@ function errors() {
   const e = {};
   if (!S.on) return e;
   if (S.price !== "" && (num(S.price) < 1000 || num(S.price) > 1e9)) e.price = "Введите сумму от 1 000 до 1 000 000 000 сум";
-  if (S.moq !== "" && (num(S.moq) < 1 || num(S.moq) > 100000)) e.moq = "Введите количество от 1 до 100 000";
   const t = S.branches.filter(b => b.ticked);
   if (!t.length) e.br = "Выберите хотя бы один филиал, из которого вы доставляете";
   t.forEach(b => { if (!b.cities.length) e["c" + b.id] = "Добавьте хотя бы один город, куда доставляет филиал"; else if (b.cities.some(c => !c.term)) e["t" + b.id] = "Выберите срок доставки для каждого города"; });
   return e;
 }
-const qualify = () => PRODUCTS.filter(p => p.f || (S.price !== "" && p.p >= num(S.price)) || (S.moq !== "" && p.m >= num(S.moq))).length;
+// Live count (SD-S7, proposed) is M-SD48 «Отмечено товаров: {n}»: flagged fixed-price products only,
+// because the order-total rule cannot be counted per product.
+const qualify = () => PRODUCTS.filter(p => !p.neg && p.f).length;
 function cityRows(b, ro) {
   return b.cities.map((c, i) => `<div class="cityrow"><div class="inp" style="background:#f6f7f9">${esc(c.city)}</div>
     <select class="inp" data-term="${b.id}:${i}" ${ro ? "disabled" : ""}><option value="">Срок доставки…</option>${TERMS.map(t => `<option value="${t[0]}" ${c.term === t[0] ? "selected" : ""}>${t[1]}</option>`).join("")}</select>
@@ -42,12 +44,11 @@ function sdBlock(mobile) {
   const head = `<div class="row" style="justify-content:space-between;align-items:flex-start"><div><h3 style="margin:0">🚚 Доставка продавцом</h3><p class="sub small">Своим транспортом, всегда бесплатно для покупателя</p></div><button class="toggle ${S.on ? "on" : ""}" id="sw" ${ro ? "disabled" : ""}></button></div>`;
   if (S.adminOff) return `<div class="card">${head}<div class="alert e mt12"><span class="ic">!</span><div><b>Доставка продавцом отключена администратором: ${esc(S.adminOff)}</b>Обратитесь в поддержку, если не согласны.</div></div></div>`;
   if (!S.on) return `<div class="card">${head}</div>`;
-  const warn = S.price === "" && S.moq === "" && !PRODUCTS.some(p => p.f) ? `<div class="alert w mt12"><span class="ic">!</span><div>Сейчас ни один товар не подходит для бесплатной доставки. Укажите порог или отметьте товары.</div></div>` : "";
+  const warn = S.price === "" && !PRODUCTS.some(p => p.f) ? `<div class="alert w mt12"><span class="ic">!</span><div>Сейчас ни один товар не подходит для бесплатной доставки. Укажите порог или отметьте товары.</div></div>` : "";
   return `<div class="card">${head}
-    <div class="${mobile ? "" : "grid2"} mt16"><div class="field"><label>Бесплатно, если цена товара от</label><input class="inp ${e.price ? "err" : ""}" id="price" placeholder="например, 5 000 000" value="${esc(S.price)}"><span class="hint">сум, цена со скидкой продавца</span>${e.price ? `<span class="err-t">${e.price}</span>` : ""}</div>
-      <div class="field"><label>Бесплатно, если минимальный заказ от</label><input class="inp ${e.moq ? "err" : ""}" id="moq" placeholder="например, 100" value="${esc(S.moq)}"><span class="hint">шт. Минимальный заказ товара указывается в карточке товара</span>${e.moq ? `<span class="err-t">${e.moq}</span>` : ""}</div></div>
+    <div class="field mt16" style="${mobile ? "" : "max-width:440px"}"><label>Бесплатно, если сумма заказа от</label><input class="inp ${e.price ? "err" : ""}" id="price" placeholder="например, 5 000 000" value="${esc(S.price)}"><span class="hint">Сумма одного заказа из этого филиала, без учёта промокодов</span>${e.price ? `<span class="err-t">${e.price}</span>` : ""}</div>
     <div class="field"><label>Условия для покупателя <span class="counter">${S.note.length}/300</span></label><textarea class="inp" id="note" maxlength="300" placeholder="Например: доставка до подъезда, разгрузка за счёт покупателя">${esc(S.note)}</textarea></div>
-    <div class="pill g">Сейчас подходят товаров: ${qualify()}</div>${warn}
+    <div class="pill g">Отмечено товаров: ${qualify()}</div>${warn}
     <h4 style="margin:18px 0 0">Филиалы, из которых вы доставляете</h4>${S.branches.map(b => branchBlock(b, e, ro)).join("")}
     ${e.br ? `<div class="err-t mt8">${e.br}</div>` : ""}
     <div class="row mt16"><button class="btn pri" id="save" ${valid ? "" : "disabled"}>Сохранить</button>${S.saved ? `<span class="hint">Сохранено ${S.saved}</span>` : ""}</div></div>`;
@@ -79,7 +80,7 @@ function bind() {
     if (S.on && S.activeOrders) return offDialog();
     S.on = !S.on; render(); };
   const inp = (id, k) => { const el = $("#" + id); if (el) el.oninput = e => { S[k] = e.target.value; const p = el.selectionStart; render(); const n = $("#" + id); n.focus(); try { n.setSelectionRange(p, p); } catch (_) {} }; };
-  inp("price", "price"); inp("moq", "moq"); inp("note", "note");
+  inp("price", "price"); inp("note", "note");
   document.querySelectorAll("[data-br]").forEach(c => c.onchange = () => { const b = S.branches.find(x => x.id == c.dataset.br); b.ticked = c.checked; if (b.ticked && !b.cities.length) b.cities.push({ city: b.city, term: "" }); render(); });
   document.querySelectorAll("[data-term]").forEach(s => s.onchange = () => { const [b, i] = s.dataset.term.split(":"); S.branches.find(x => x.id == b).cities[i].term = s.value; render(); });
   document.querySelectorAll("[data-rm]").forEach(s => s.onclick = () => { const [b, i] = s.dataset.rm.split(":"); S.branches.find(x => x.id == b).cities.splice(i, 1); render(); });
@@ -95,10 +96,10 @@ function offDialog() {
   $("#keep", m).onclick = closeModal; $("#off", m).onclick = () => { closeModal(); S.on = false; render(); toast("Настройки сохранены"); };
 }
 const filled = () => { const b = JSON.parse(JSON.stringify(BR0)); b[0].ticked = true; b[0].cities = [{ city: "Ташкент", term: "D0_1" }, { city: "Чирчик", term: "D2_3" }]; b[2].ticked = true; b[2].cities = [{ city: "Самарканд", term: "D0_1" }, { city: "Бухара", term: "D4_7" }]; return b; };
-harness({ title: "P-SD1 Seller: seller delivery settings and product flag", stories: "US-SF-5.5-01 · US-SF-5.4-01", version: "1.0" }, [
+harness({ title: "P-SD1 Seller: seller delivery settings and product flag", stories: "US-SF-5.5-01 · US-SF-5.4-01", version: "1.5" }, [
   { label: "Settings, seller delivery off", apply: () => reset(), notes: ["Default state: the block is off and shows nothing else (US-SF-5.5-01 AC1).", "Click the switch to turn it on (AC2). Fargo, Yandex Go and pickup are only placeholders here."], src: "Seller delivery PRD 5.1 · not designed (DR-SD5)" },
-  { label: "Settings filled in, two branches", apply: () => reset({ on: true, price: "5 000 000", moq: "100", note: "Доставка до подъезда, разгрузка за счёт покупателя.", branches: filled() }), notes: ["Two branches deliver; each city has its own delivery time from five fixed ranges (AC3, AC4).", "Try \"+ Добавить город\" and pick Ташкент again to see \"Этот город уже добавлен\" (AC5).", "The live count \"Сейчас подходят товаров\" changes with the thresholds (AC10, nice to have).", "\"Новый склад\" has no city, so it cannot be ticked (AC9)."], src: "PRD 4.3, 4.6, 5.1" },
-  { label: "Validation errors", apply: () => { const b = JSON.parse(JSON.stringify(BR0)); b[0].ticked = true; b[0].cities = [{ city: "Ташкент", term: "" }]; b[1].ticked = true; reset({ on: true, price: "500", branches: b }); }, notes: ["\"Сохранить\" stays disabled while any error is shown (AC6).", "Errors: price out of range, a branch without a city, a city without a delivery time."], src: "PRD 5.1 field table, M-SD12, M-SD13, M-SD26" },
+  { label: "Settings filled in, two branches", apply: () => reset({ on: true, price: "5 000 000", note: "Доставка до подъезда, разгрузка за счёт покупателя.", branches: filled() }), notes: ["Two branches deliver; each city has its own delivery time from five fixed ranges (AC3, AC4).", "Try \"+ Добавить город\" and pick Ташкент again to see \"Этот город уже добавлен\" (AC5).", "One threshold only: \"Бесплатно, если сумма заказа от\" (L-SD2, changed in v1.5). It is compared with the total of one order from one branch: Σ price after the seller's discount × quantity, before promo codes; out-of-stock and negotiable-price lines do not count; \"at least\" (≥). If the total reaches it, every line of that order is delivered free (decided 01.11.2026, OQ-SD1).", "Example: threshold 5 000 000 сум; an order of 2 000 000 + 1 500 000 + 2 000 000 = 5 500 000 сум from the same branch → the whole order qualifies.", "The MOQ threshold \"Бесплатно, если минимальный заказ от\" is removed from the MVP (later; OQ-SD3).", "The hint under the field is M-SD64 \"The total of one order from this branch, before promo codes\". The amount is in сум.", "The live count is now M-SD48 \"Отмечено товаров: N\" (AC10, nice to have): flagged products only, because the order-total rule cannot be counted per product. Negotiable-price products never count.", "\"Новый склад\" has no city, so it cannot be ticked (AC9)."], src: "PRD 4.3, 4.6, 5.1" },
+  { label: "Validation errors", apply: () => { const b = JSON.parse(JSON.stringify(BR0)); b[0].ticked = true; b[0].cities = [{ city: "Ташкент", term: "" }]; b[1].ticked = true; reset({ on: true, price: "500", branches: b }); }, notes: ["\"Сохранить\" stays disabled while any error is shown (AC6).", "Errors: the order-total threshold out of range (M-SD13, 1 000 – 1 000 000 000 сум), a branch without a city, a city without a delivery time. An empty threshold is allowed: then only flagged products qualify."], src: "PRD 5.1 field table, M-SD12, M-SD13, M-SD26" },
   { label: "Turning off with active orders", apply: () => reset({ on: true, price: "5 000 000", branches: filled(), activeOrders: 3, saved: "вчера в 18:10" }), notes: ["Click the switch: the dialog warns that 3 active orders must still be delivered (AC11).", "\"Выключить\" turns the method off for new checkouts only."], src: "PRD SD-S9, M-SD16" },
   { label: "Switched off by the admin", apply: () => reset({ on: false, adminOff: "покупателям предлагали платную доставку" }), notes: ["The switch is locked and the admin's reason is shown (AC13). The seller cannot turn it back on."], src: "PRD SD-S10, M-SD22; US-AF-2.3-01" },
   { label: "Product form with the flag", apply: () => reset({ view: "product", flag: true }), notes: ["Checkbox \"Бесплатная доставка продавцом\" with its hint (US-SF-5.4-01 AC1).", "Saving only this field does not send the product back to moderation (AC4).", "Tick \"Договорная цена\" to see the checkbox disabled (AC5, proposed)."], src: "PRD 5.2 · not designed (DR-SD7)" },

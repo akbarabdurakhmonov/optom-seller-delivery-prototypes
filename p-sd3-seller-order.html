@@ -262,9 +262,6 @@ textarea.inp{min-height:76px;resize:vertical}
 .sdcard .why{color:var(--red);font-size:13px;margin-top:4px}
 .info{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#eceef1;color:var(--ink-2);font-size:11px;font-weight:700;cursor:pointer;margin-left:6px;vertical-align:middle}
 .tip{background:#1b1c1f;color:#fff;border-radius:10px;padding:10px 12px;font-size:12.5px;margin-top:8px;max-width:420px}
-.codebox{display:flex;gap:8px;justify-content:center;margin:14px 0}
-.codebox input{width:52px;height:60px;text-align:center;font-size:26px;font-weight:600;border:1.5px solid var(--line-2);border-radius:12px;outline:none}
-.codebox input:focus{border-color:var(--green)}
 .overdue{color:var(--red);font-weight:600}
 .dflt{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fff}
 .dflt h4{margin:14px 0 8px;font-size:15px}
@@ -283,6 +280,12 @@ textarea.inp{min-height:76px;resize:vertical}
 .reasons label.on{border-color:var(--green);background:var(--green-50)}
 .notif{background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:12px 14px;display:flex;gap:10px;max-width:360px}
 .notif .ic2{width:36px;height:36px;border-radius:10px;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:700;flex:none}
+.qty{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line-2);border-radius:9px;padding:2px 4px}
+.qty button{width:24px;height:24px;border:0;background:#f1f2f4;border-radius:6px;cursor:pointer;font-size:14px}
+.cline .lsum{min-width:120px;text-align:right}
+.cline.dim{opacity:.6}
+.aside2{border:1px dashed var(--line-2);border-radius:12px;padding:10px 12px 12px;margin-top:14px;background:#fafbfc}
+.warn2{color:#b54708;margin-top:4px}
 </style></head><body>
 <div id="app"></div><p style="text-align:center;color:#8b9189;font-size:11.5px;margin:18px 0 28px">Optom.uz · clickable prototype for the seller-delivery user stories (epic US-BF-6.4) · requirements: Seller delivery PRD · example data only. Where a prototype differs from the acceptance criteria in Confluence, the acceptance criteria win.</p>
 <script>// Prototype harness: scenario picker, notes panel, toasts, icons, seller shell
@@ -366,7 +369,7 @@ const REASONS = [["NoAnswer", "Покупатель не отвечает"], ["W
 let S = {};
 function reset(o) {
   closeModal();
-  S = Object.assign({ st: 16, hist: [], tries: 0, lockUntil: 0, failCount: 0, reason: "", conflict: false, overdue: false, mobile: false, notif: false, noCode: false, adminRetry: false }, o || {});
+  S = Object.assign({ st: 16, hist: [], failCount: 0, reason: "", conflict: false, overdue: false, mobile: false, notif: false, adminRetry: false }, o || {});
   render();
 }
 const log = t => S.hist.push([t, "сегодня в " + new Date().toTimeString().slice(0, 5), "Николаев А. Д. · продавец"]);
@@ -379,11 +382,11 @@ function actions() {
   const b = (id, cls, t) => `<button class="btn ${cls}" id="${id}">${t}</button>`;
   if (S.st === 41) return `<div class="alert e"><span class="ic">!</span><div><b>Покупатель отменил заказ</b>Не отправляйте и не передавайте товары.</div></div>`;
   if (S.st === 16) return `<h3>Подтвердите заказ</h3><p class="sub">У вас есть 24 часа, чтобы принять заказ.</p><div class="row mt12">${b("reject", "dan", "Отклонить")}${b("confirm", "pri", "Подтвердить")}</div>`;
-  if (S.st === 25) return `<h3>Соберите и отправьте заказ</h3><p class="sub">Когда заказ уедет к покупателю, нажмите «Готов к доставке». Покупатель получит код для получения.</p><div class="row mt12">${b("cancel", "dan", "Отменить заказ")}${b("ready", "pri", "Готов к доставке")}</div>`;
-  if (S.st === 30) return `<h3>Заказ в пути</h3><p class="sub">При передаче попросите у покупателя 4-значный код из его заказа.</p><div class="row mt12">${b("fail", "out", "Не удалось доставить")}${b("deliv", "pri", "Доставлено")}</div><p class="hint mt8">Отменить заказ в доставке может только поддержка.</p>`;
+  if (S.st === 25) return `<h3>Соберите и отправьте заказ</h3><p class="sub">Когда заказ уедет к покупателю, нажмите «Готов к доставке».</p><div class="row mt12">${b("cancel", "dan", "Отменить заказ")}${b("ready", "pri", "Готов к доставке")}</div>`;
+  if (S.st === 30) return `<h3>Заказ в пути</h3><p class="sub">Когда передадите заказ покупателю, нажмите «Доставлено».</p><div class="row mt12">${b("fail", "out", "Не удалось доставить")}${b("deliv", "pri", "Доставлено")}</div><p class="hint mt8">Отменить заказ в доставке может только поддержка.</p>`;
   if (S.st === 24) return supportOnly() ? `<div class="alert w"><span class="ic">!</span><div><b>Поддержка примет решение по этому заказу. Дождитесь сообщения.</b>Причина: ${REASONS.find(r => r[0] === S.reason)[1]}${S.failCount >= 3 ? " · неудачных попыток: " + S.failCount : ""}</div></div>`
     : `<div class="alert w"><span class="ic">!</span><div><b>Доставка не удалась: ${REASONS.find(r => r[0] === S.reason)[1]}</b>Попробуйте доставить ещё раз. Попытка ${S.failCount} из 3.</div></div><div class="row mt12">${b("ready", "pri", "Готов к доставке")}</div>`;
-  if (S.st === 35) return `<div class="alert s"><span class="ic">✓</span><div><b>Доставлено ${S.noCode ? "без кода" : "с кодом"}</b>${S.noCode ? "Заказ попал в список проверки поддержки." : "Покупатель подтвердил получение кодом."}</div></div>`;
+  if (S.st === 35) return `<h3>Заказ доставлен</h3><p class="sub">Доставлен 22.10.2026. Заказ завершится, когда покупатель подтвердит получение, или автоматически 29.10.2026 в 23:59.</p>`;
   if (S.st === 45) return `<div class="alert e"><span class="ic">!</span><div><b>Заказ отменён</b>Покупатель получил уведомление. Товары вернулись на остаток филиала.</div></div>`;
   return "";
 }
@@ -414,38 +417,23 @@ function bind() {
   const on = (id, f) => { const e = $("#" + id); if (e) e.onclick = f; };
   on("confirm", () => setSt(25, "Заказ подтверждён (16 → 25)", "Заказ подтверждён"));
   on("reject", () => setSt(45, "Заказ отклонён продавцом", "Заказ отклонён"));
-  on("ready", readyDialog); on("cancel", cancelDialog); on("deliv", codeDialog); on("fail", failDialog);
+  on("ready", readyDialog); on("cancel", cancelDialog); on("deliv", delivDialog); on("fail", failDialog);
 }
 function readyDialog() {
   const m = modal(`<h3>Заказ готов к отправке?</h3><p>Подтвердите, что заказ упакован и готов к передаче в доставку.</p><div class="acts"><button class="btn out" id="no">Отмена</button><button class="btn pri" id="yes">Подтвердить</button></div>`);
   $("#no", m).onclick = closeModal;
-  $("#yes", m).onclick = () => { if (S.failSave) { closeModal(); return toast("Не удалось обновить статус"); } S.adminRetry = false; setSt(30, S.st === 24 ? "Новая попытка доставки (24 → 30)" : "Передан в доставку (25 → 30). Покупатель видит код", "Заказ передан в доставку"); };
+  $("#yes", m).onclick = () => { if (S.failSave) { closeModal(); return toast("Не удалось обновить статус"); } S.adminRetry = false; setSt(30, S.st === 24 ? "Новая попытка доставки (24 → 30)" : "Передан в доставку (25 → 30)", "Заказ передан в доставку"); };
 }
 function cancelDialog() {
   const m = modal(`<h3>Отменить заказ?</h3><p>Укажите причину отмены для покупателя.</p><textarea class="inp" id="why" maxlength="300" placeholder="Например: товар закончился на складе"></textarea><span class="err-t" id="e"></span><div class="acts"><button class="btn out" id="no">Назад</button><button class="btn danfill" id="yes">Отменить заказ</button></div>`);
   $("#no", m).onclick = closeModal;
   $("#yes", m).onclick = () => { const v = $("#why", m).value.trim(); if (v.length < 10) return $("#e", m).textContent = "Введите не менее 10 символов."; setSt(45, "Заказ отменён продавцом: " + esc(v), "Заказ отменён"); };
 }
-function codeDialog() {
-  const locked = S.lockUntil > Date.now();
-  const m = modal(`<h3>Введите код покупателя</h3><p class="sub">Покупатель видит код в своём заказе.</p><div class="codebox">${[0, 1, 2, 3].map(i => `<input maxlength="1" inputmode="numeric" data-i="${i}" ${locked ? "disabled" : ""}>`).join("")}</div>
-    <div class="err-t" id="e" style="text-align:center">${locked ? "Слишком много попыток. Попробуйте через 15 минут." : ""}</div>
-    <p class="small muted" style="text-align:center">Демо: правильный код 4817 · неверных попыток: ${S.tries}</p>
-    <div style="text-align:center"><a href="#" id="nocode">Покупатель не может назвать код</a></div>
-    <div class="acts"><button class="btn out" id="no">Отмена</button><button class="btn pri" id="yes" ${locked ? "disabled" : ""}>Подтвердить</button></div>`);
-  const ins = m.querySelectorAll("[data-i]"); ins.forEach((x, i) => x.oninput = () => { if (x.value && ins[i + 1]) ins[i + 1].focus(); });
-  if (ins[0] && !locked) ins[0].focus();
+// No delivery code in the MVP (decided 01.11.2026, OQ-SD7): «Доставлено» opens a plain confirmation, M-SD62 / M-SD63.
+function delivDialog() {
+  const m = modal(`<h3>Заказ доставлен?</h3><p>Подтвердите, что передали заказ покупателю. У покупателя есть 7 дней, чтобы подтвердить получение или сообщить о проблеме.</p><div class="acts"><button class="btn out" id="no">Отмена</button><button class="btn pri" id="yes">Подтвердить</button></div>`);
   $("#no", m).onclick = closeModal;
-  $("#yes", m).onclick = () => { const c = [...ins].map(x => x.value).join("");
-    if (c === "4817") { S.tries = 0; return setSt(35, "Доставлено с кодом (30 → 35)", "Заказ отмечен как доставленный"); }
-    S.tries++; if (S.tries >= 5) { S.lockUntil = Date.now() + 15 * 60000; S.tries = 0; codeDialog(); return; }
-    $("#e", m).textContent = "Неверный код. Попросите покупателя проверить код в заказе."; ins.forEach(x => x.value = ""); ins[0].focus(); };
-  $("#nocode", m).onclick = e => { e.preventDefault(); noCodeDialog(); };
-}
-function noCodeDialog() {
-  const m = modal(`<h3>Покупатель не может назвать код</h3><p>Опишите, как вы передали заказ. Заказ попадёт на проверку поддержки, а покупатель получит уведомление.</p><textarea class="inp" id="why" maxlength="300"></textarea><span class="err-t" id="e"></span><div class="acts"><button class="btn out" id="no">Назад</button><button class="btn pri" id="yes">Отметить доставленным</button></div>`);
-  $("#no", m).onclick = codeDialog;
-  $("#yes", m).onclick = () => { const v = $("#why", m).value.trim(); if (v.length < 10) return $("#e", m).textContent = "Введите не менее 10 символов."; S.noCode = true; setSt(35, "Доставлено без кода: " + esc(v), "Заказ отмечен как доставленный"); };
+  $("#yes", m).onclick = () => { if (S.failSave) { closeModal(); return toast("Не удалось обновить статус"); } setSt(35, "Доставлено (30 → 35)", "Заказ отмечен как доставленный"); };
 }
 function failDialog() {
   let pick = "";
@@ -457,18 +445,18 @@ function failDialog() {
     S.reason = pick; S.failCount++; setSt(24, "Доставка не удалась: " + REASONS.find(r => r[0] === pick)[1] + " (30 → 24)", "Статус обновлён. Покупатель получил уведомление"); };
 }
 const H0 = [["Заказ подтверждён (16 → 25)", "22.10.2026 в 10:12", "Николаев А. Д. · продавец"]];
-const H1 = H0.concat([["Передан в доставку (25 → 30). Покупатель видит код", "22.10.2026 в 14:05", "Николаев А. Д. · продавец"]]);
-harness({ title: "P-SD3 Seller: seller-delivery order actions", stories: "US-SF-5.4-02 · US-SF-5.4-03 · US-BF-6.4-04", version: "1.1" }, [
+const H1 = H0.concat([["Передан в доставку (25 → 30)", "22.10.2026 в 14:05", "Николаев А. Д. · продавец"]]);
+harness({ title: "P-SD3 Seller: seller-delivery order actions", stories: "US-SF-5.4-02 · US-SF-5.4-03 · US-BF-6.4-04", version: "1.5" }, [
   { label: "New paid order", apply: () => reset(), notes: ["16 PaymentSuccessWaitingConfirmation. \"Подтвердить\" moves the order to 25 Processing; status 20 is skipped (US-SF-5.4-02 AC2, decided OQ-SD18).", "\"Доставить до\" shows the deadline set at payment (AC1)."], src: "Seller delivery PRD 5.4, 6" },
   { label: "Processing: ready for delivery", apply: () => reset({ st: 25, hist: H0.slice() }), notes: ["In 25 the seller sees \"Готов к доставке\" and \"Отменить заказ\" (AC4, AC6). The website gets these actions too (DR-SD4)."], src: "PRD SD-S18, SD-S19" },
-  { label: "Ready-for-delivery dialog", apply: () => { reset({ st: 25, hist: H0.slice() }); readyDialog(); }, notes: ["Dialog texts from the seller app design. \"Подтвердить\" → 30 Shipped, toast, the buyer gets the code and DLV-01 (AC5)."], src: "Seller app design «Мои заказы»" },
+  { label: "Ready-for-delivery dialog", apply: () => { reset({ st: 25, hist: H0.slice() }); readyDialog(); }, notes: ["Dialog texts from the seller app design. \"Подтвердить\" → 30 Shipped, toast, the buyer gets DLV-01 (AC5). DLV-01 has no code sentence: there is no delivery code in the MVP (decided 01.11.2026, OQ-SD7)."], src: "Seller app design «Мои заказы»" },
   { label: "Cancel with a reason", apply: () => { reset({ st: 25, hist: H0.slice() }); cancelDialog(); }, notes: ["Cancel in 25 needs a reason of 10–300 characters (AC6, decided OQ-SD11). Try a short reason to see the error."], src: "PRD SD-S19, M-SD44, M-SD55" },
   { label: "Shipped: actions", apply: () => reset({ st: 30, hist: H1.slice() }), notes: ["In 30 the seller sees \"Доставлено\" and \"Не удалось доставить\" and no cancel button (US-SF-5.4-02 AC7, US-SF-5.4-03 AC1)."], src: "ТЗ 3.8 · DR-SD3" },
-  { label: "Code dialog: wrong code and lock", apply: () => { reset({ st: 30, hist: H1.slice(), tries: 4 }); codeDialog(); }, notes: ["4 wrong attempts already. One more wrong code locks entry for 15 minutes (US-SF-5.4-03 AC3, AC4). The right demo code is 4817."], src: "PRD SD-S20, M-SD8, M-SD9" },
-  { label: "Buyer cannot give the code", apply: () => { reset({ st: 30, hist: H1.slice() }); noCodeDialog(); }, notes: ["The no-code path needs a comment; the order becomes 35 \"without code\", goes to the admin list and the buyer gets DLV-09 (AC5)."], src: "PRD SD-S21" },
+  { label: "Delivered: confirmation dialog", apply: () => { reset({ st: 30, hist: H1.slice() }); delivDialog(); }, notes: ["\"Доставлено\" opens a confirmation without a code: M-SD62 \"Заказ доставлен?\" and M-SD63, buttons \"Отмена\" / \"Подтвердить\" (decided 01.11.2026, OQ-SD7).", "\"Подтвердить\" → 35 Delivered, DeliveredAt = the time of the click, toast M-SD41 \"Заказ отмечен как доставленный\". The buyer gets DLV-09 \"Заказ №… отмечен доставленным\" on every seller \"Delivered\".", "No code input, no \"Покупатель не может назвать код\" and no lock. Buyer protection is the 7-day confirm-or-report window."], src: "PRD v1.5 SD-S20, M-SD62, M-SD63, M-SD41" },
+  { label: "Delivered: waiting for the buyer", apply: () => reset({ st: 35, hist: H1.concat([["Доставлено (30 → 35)", "22.10.2026 в 17:20", "Николаев А. Д. · продавец"]]) }), notes: ["35 Delivered: the seller has no more actions. The buyer has 7 calendar days: day 0 is the DeliveredAt date (Tashkent), the window ends at 23:59 on day 0 + 7 (29.10.2026).", "The buyer confirms receipt (\"Я получил заказ\" → 40 Success at once) or reports a problem (the order stays at 35 and goes to the admin problem list). With no action, the order completes automatically on day 7 at 23:59; the same rule for every method (decided 01.11.2026, OQ-SD8)."], src: "PRD v1.5 SD-B14; Order lifecycle US-BF-6.8-01, US-BF-6.8-02" },
   { label: "Status already changed", apply: () => reset({ st: 25, hist: H0.slice(), conflict: true }), notes: ["The buyer cancelled while the page was open. Click any action: nothing changes and the seller sees \"Статус заказа уже изменился\" (US-SF-5.4-02 AC8)."], src: "PRD SD-P8, M-SD23" },
   { label: "Could not deliver", apply: () => { reset({ st: 30, hist: H1.slice() }); failDialog(); }, notes: ["Four reasons; \"Другое\" needs a comment. Result: 24 OnHold, DLV-02 to the buyer, admin problem list (US-SF-5.4-03 AC6)."], src: "PRD SD-S22, M-SD17" },
-  { label: "On hold: new attempt", apply: () => reset({ st: 24, reason: "NoAnswer", failCount: 1, hist: H1.concat([["Доставка не удалась: Покупатель не отвечает (30 → 24)", "22.10.2026 в 16:30", "Николаев А. Д. · продавец"]]) }), notes: ["After \"Покупатель не отвечает\" the seller can try again: \"Готов к доставке\" → 30 with the same code (AC7)."], src: "PRD SD-S23" },
+  { label: "On hold: new attempt", apply: () => reset({ st: 24, reason: "NoAnswer", failCount: 1, hist: H1.concat([["Доставка не удалась: Покупатель не отвечает (30 → 24)", "22.10.2026 в 16:30", "Николаев А. Д. · продавец"]]) }), notes: ["After \"Покупатель не отвечает\" the seller can try again: \"Готов к доставке\" → 30 (AC7)."], src: "PRD SD-S23" },
   { label: "On hold: support decides", apply: () => reset({ st: 24, reason: "Refused", failCount: 1, hist: H1.slice() }), notes: ["After a refusal (or 3 failures) the seller has no actions until the admin allows a new attempt or cancels (AC8, decided OQ-SD9; US-AF-2.3-02)."], src: "PRD SD-S23, 7" },
   { label: "Overdue order and reminder", apply: () => reset({ st: 30, hist: H1.slice(), overdue: true, notif: true }), notes: ["The deadline passed. At 09:00 the next morning the seller gets SOR-11 and the date turns red with \"Просрочен\" (US-BF-6.4-04 AC1).", "Two days after the deadline the order also goes to the admin problem list (AC4).", "Only orders in 25 or 30 get the reminder. An order the seller never confirmed is cancelled 24 hours after payment by the auto-cancel of BF-6.6, for every method, so it never becomes overdue (AC7, decided OQ-SD28)."], src: "PRD SD-S27, SOR-11" },
   { label: "Seller app: order actions", apply: () => reset({ st: 30, hist: H1.slice(), mobile: true }), notes: ["The seller app has the same actions, dialogs and rules as the website (US-SF-5.4-02 AC13)."], src: "Seller app design «Мои заказы»" },
